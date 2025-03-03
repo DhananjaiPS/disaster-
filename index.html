@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Management</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Disaster Management</div>
+        <div class="nav-items">
+            <button class="translate-btn">Language</button>
+            <button class="live-status-btn" onclick="loadPage('risk-assessment')">
+                Live Status
+                <span class="pulse"></span>
+            </button>
+            <button class="notifications-btn">Notifications</button>
+            <button class="sos-btn">SOS Emergency</button>
+            <button class="profile-btn">Profile</button>
+        </div>
+    </nav>
+
+    <main id="main-content">
+        <!-- Content will be dynamically loaded here -->
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html> 
