@@ -2,6 +2,7 @@
 let currentPage = 'dashboard';
 let disasterAlerts = [];
 let map = null;
+let userLocation = null;
 
 // User state
 let currentUser = null;
@@ -97,6 +98,23 @@ const schemes = [
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    // Set up default user if no users exist
+    const savedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    if (savedUsers.length === 0) {
+        const defaultUser = {
+            name: 'DJ',
+            email: 'dj@gmail.com',
+            phone: '',
+            password: '123',
+            address: '',
+            emergencyContact: '',
+            bloodGroup: '',
+            safetyStatus: 'unknown'
+        };
+        savedUsers.push(defaultUser);
+        localStorage.setItem('users', JSON.stringify(savedUsers));
+    }
+    
     setupNavigation();
     checkLoginStatus();
 });
@@ -106,12 +124,23 @@ function setupNavigation() {
     document.querySelector('.nav-brand').addEventListener('click', () => loadPage('dashboard'));
     document.querySelector('.sos-btn').addEventListener('click', () => loadPage('emergency-sos'));
     document.querySelector('.profile-btn').addEventListener('click', () => loadPage('profile'));
+    document.querySelector('.location-btn').addEventListener('click', () => showLocationModal());
 }
 
 // Page routing
 function loadPage(pageName) {
     currentPage = pageName;
     const mainContent = document.getElementById('main-content');
+    
+    // Check if location is required for this page
+    if (['dashboard', 'risk-assessment', 'govt-services'].includes(pageName)) {
+        const savedLocation = localStorage.getItem('userLocation');
+        if (!savedLocation) {
+            showLocationModal();
+            return;
+        }
+        userLocation = JSON.parse(savedLocation);
+    }
     
     switch(pageName) {
         case 'dashboard':
@@ -185,40 +214,427 @@ function updateMapMarkers() {
 function createDashboardHTML() {
     return `
         <div class="dashboard-container">
-            <div id="disaster-map" class="map-container"></div>
-            <div class="quick-actions">
-                <div class="quick-action-btn" onclick="loadPage('emergency-sos')">
-                    <h3>Report Emergency</h3>
-                    <p>Request immediate assistance</p>
-                </div>
-                <div class="quick-action-btn" onclick="loadPage('risk-assessment')">
-                    <h3>Live Status</h3>
-                    <div class="live-status-indicator ${getCurrentRiskLevel().className}">
-                        <span class="pulse"></span>
-                        <p>Risk Level: ${getCurrentRiskLevel().status}</p>
-                    </div>
-                    <p>Check real-time disaster risks</p>
-                </div>
-                <div class="quick-action-btn" onclick="window.location.href='#medical'">
-                    <h3><i class="fas fa-hospital"></i> Find Medical Help</h3>
-                    <p>Locate nearby medical facilities</p>
-                </div>
-                <div class="quick-action-btn" onclick="window.location.href='#evacuation'">
-                    <h3><i class="fas fa-running"></i> Evacuation Routes</h3>
-                    <p>Find safe paths to shelters</p>
-                </div>
-                <div class="quick-action-btn" onclick="window.location.href='#volunteer'">
-                    <h3><i class="fas fa-hands-helping"></i> Volunteer</h3>
-                    <p>Help your community</p>
-                </div>
-                <div class="quick-action-btn" onclick="loadPage('govt-services')">
-                    <h3>Government Services</h3>
-                    <p>Access disaster relief schemes</p>
+            <div class="dashboard-header">
+                <h1>Live Disaster Dashboard</h1>
+                <div class="dashboard-controls">
+                    <button onclick="refreshDashboard()" class="refresh-btn">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
+                    <button onclick="toggleNotifications()" class="notifications-toggle">
+                        <i class="fas fa-bell"></i> Enable Notifications
+                    </button>
                 </div>
             </div>
-            <div class="alerts-section">
-                <h2>Active Alerts</h2>
-                <div id="alerts-container"></div>
+
+            <div class="dashboard-grid">
+                <!-- Live Map Section -->
+                <div class="dashboard-section map-section">
+                    <h2>Live Disaster Map</h2>
+                    <div id="disaster-map" class="map-container"></div>
+                    <div class="map-controls">
+                        <button onclick="toggleLayer('disaster-zones')">Disaster Zones</button>
+                        <button onclick="toggleLayer('safe-zones')">Safe Zones</button>
+                        <button onclick="toggleLayer('evacuation-centers')">Evacuation Centers</button>
+                        <button onclick="toggleLayer('hospitals')">Hospitals</button>
+                        <button onclick="toggleLayer('road-blocks')">Road Blocks</button>
+                    </div>
+                </div>
+
+                <!-- Real-time Alerts Section -->
+                <div class="dashboard-section alerts-section">
+                    <h2>Real-time Alerts</h2>
+                    <div class="alerts-filter">
+                        <button class="filter-btn active" onclick="filterAlerts('all')">All</button>
+                        <button class="filter-btn" onclick="filterAlerts('high')">High Priority</button>
+                        <button class="filter-btn" onclick="filterAlerts('medium')">Medium</button>
+                        <button class="filter-btn" onclick="filterAlerts('low')">Low</button>
+                    </div>
+                    <div id="alerts-container" class="alerts-container"></div>
+                </div>
+
+                <!-- Emergency Contacts Section -->
+                <div class="dashboard-section contacts-section">
+                    <h2>Emergency Contacts</h2>
+                    <div class="quick-contacts">
+                        <button class="sos-btn" onclick="triggerSOS()">
+                            <i class="fas fa-phone"></i> Emergency SOS
+                        </button>
+                        <div class="contact-list">
+                            <div class="contact-group">
+                                <h3>Emergency Services</h3>
+                                <button onclick="callEmergency('police')">Police (100)</button>
+                                <button onclick="callEmergency('fire')">Fire (101)</button>
+                                <button onclick="callEmergency('ambulance')">Ambulance (108)</button>
+                            </div>
+                            <div class="contact-group">
+                                <h3>Disaster Relief</h3>
+                                <button onclick="callEmergency('ndrf')">NDRF Helpline</button>
+                                <button onclick="callEmergency('redcross')">Red Cross</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Community Support Section -->
+                <div class="dashboard-section community-section">
+                    <h2>Community Support</h2>
+                    <div class="community-actions">
+                        <button onclick="showReportModal()" class="report-btn">
+                            <i class="fas fa-camera"></i> Report Incident
+                        </button>
+                        <button onclick="showMissingPersonModal()" class="missing-btn">
+                            <i class="fas fa-user-missing"></i> Report Missing Person
+                        </button>
+                        <button onclick="showVolunteerModal()" class="volunteer-btn">
+                            <i class="fas fa-hands-helping"></i> Volunteer
+                        </button>
+                    </div>
+                    <div id="community-feed" class="community-feed"></div>
+                </div>
+
+                <!-- Risk Assessment Section -->
+                <div class="dashboard-section risk-section">
+                    <h2>Risk Assessment</h2>
+                    <div class="risk-indicators">
+                        <div class="risk-card">
+                            <h3>Current Risk Level</h3>
+                            <div class="risk-meter">
+                                <div class="risk-level" style="width: ${getCurrentRiskLevel().percentage}%">
+                                    <span>${getCurrentRiskLevel().percentage}%</span>
+                                </div>
+                            </div>
+                            <p class="risk-status">${getCurrentRiskLevel().status}</p>
+                        </div>
+                        <div class="weather-forecast">
+                            <h3>Weather Forecast</h3>
+                            <div id="weather-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disaster Preparedness Section -->
+                <div class="dashboard-section preparedness-section">
+                    <h2>Disaster Preparedness</h2>
+                    <div class="preparedness-content">
+                        <div class="preparedness-tabs">
+                            <button class="tab-btn active" onclick="showPreparednessTab('tips')">Survival Tips</button>
+                            <button class="tab-btn" onclick="showPreparednessTab('checklist')">Emergency Kit</button>
+                            <button class="tab-btn" onclick="showPreparednessTab('videos')">How-to Videos</button>
+                        </div>
+                        <div id="preparedness-content" class="preparedness-tab-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals -->
+        <div id="reportModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('reportModal')">&times;</span>
+                <h2>Report Incident</h2>
+                <form id="reportForm" onsubmit="submitReport(event)">
+                    <div class="form-group">
+                        <label>Incident Type</label>
+                        <select required>
+                            <option value="">Select Type</option>
+                            <option value="flood">Flood</option>
+                            <option value="earthquake">Earthquake</option>
+                            <option value="fire">Fire</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Media</label>
+                        <input type="file" accept="image/*,video/*" multiple>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="missingPersonModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('missingPersonModal')">&times;</span>
+                <h2>Report Missing Person</h2>
+                <form id="missingPersonForm" onsubmit="submitMissingPerson(event)">
+                    <div class="form-group">
+                        <label>Person's Name</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Seen Location</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Photo</label>
+                        <input type="file" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="volunteerModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal('volunteerModal')">&times;</span>
+                <h2>Volunteer Registration</h2>
+                <form id="volunteerForm" onsubmit="submitVolunteer(event)">
+                    <div class="form-group">
+                        <label>Skills</label>
+                        <select multiple required>
+                            <option value="first-aid">First Aid</option>
+                            <option value="rescue">Rescue Operations</option>
+                            <option value="counseling">Counseling</option>
+                            <option value="logistics">Logistics</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Availability</label>
+                        <input type="text" placeholder="e.g., 24/7, Weekends only" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Information</label>
+                        <input type="tel" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Register as Volunteer</button>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+// Dashboard functionality
+function refreshDashboard() {
+    loadDisasterAlerts();
+    updateWeatherForecast();
+    updateCommunityFeed();
+    updateRiskAssessment();
+}
+
+function toggleNotifications() {
+    if (Notification.permission === 'granted') {
+        alert('Notifications are already enabled');
+    } else {
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                alert('Notifications enabled successfully');
+            }
+        });
+    }
+}
+
+function toggleLayer(layerType) {
+    // Implementation for toggling map layers
+    console.log(`Toggling layer: ${layerType}`);
+}
+
+function filterAlerts(priority) {
+    const buttons = document.querySelectorAll('.alerts-filter .filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const alerts = document.querySelectorAll('.alert-card');
+    alerts.forEach(alert => {
+        if (priority === 'all' || alert.dataset.priority === priority) {
+            alert.style.display = 'block';
+        } else {
+            alert.style.display = 'none';
+        }
+    });
+}
+
+function triggerSOS() {
+    if (confirm('Are you sure you want to trigger an emergency SOS?')) {
+        // Implement SOS functionality
+        alert('Emergency services have been notified. Help is on the way.');
+    }
+}
+
+function callEmergency(service) {
+    const numbers = {
+        police: '100',
+        fire: '101',
+        ambulance: '108',
+        ndrf: '1800-180-1234',
+        redcross: '1800-180-1234'
+    };
+    
+    if (numbers[service]) {
+        window.location.href = `tel:${numbers[service]}`;
+    }
+}
+
+function showReportModal() {
+    document.getElementById('reportModal').style.display = 'block';
+}
+
+function showMissingPersonModal() {
+    document.getElementById('missingPersonModal').style.display = 'block';
+}
+
+function showVolunteerModal() {
+    document.getElementById('volunteerModal').style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+async function submitReport(event) {
+    event.preventDefault();
+    // Implement report submission
+    alert('Report submitted successfully');
+    closeModal('reportModal');
+}
+
+async function submitMissingPerson(event) {
+    event.preventDefault();
+    // Implement missing person report submission
+    alert('Missing person report submitted successfully');
+    closeModal('missingPersonModal');
+}
+
+async function submitVolunteer(event) {
+    event.preventDefault();
+    // Implement volunteer registration
+    alert('Volunteer registration successful');
+    closeModal('volunteerModal');
+}
+
+async function updateWeatherForecast() {
+    try {
+        // In a real app, this would fetch from a weather API
+        const weatherContainer = document.getElementById('weather-container');
+        if (weatherContainer) {
+            weatherContainer.innerHTML = `
+                <div class="weather-card">
+                    <div class="weather-info">
+                        <span class="temperature">28°C</span>
+                        <span class="condition">Partly Cloudy</span>
+                    </div>
+                    <div class="weather-details">
+                        <p>Humidity: 65%</p>
+                        <p>Wind: 12 km/h</p>
+                        <p>Rain Probability: 30%</p>
+                    </div>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error updating weather:', error);
+    }
+}
+
+function updateCommunityFeed() {
+    const feed = document.getElementById('community-feed');
+    if (feed) {
+        // In a real app, this would fetch from a backend
+        feed.innerHTML = `
+            <div class="community-post">
+                <div class="post-header">
+                    <img src="https://via.placeholder.com/40" alt="User" class="user-avatar">
+                    <div class="post-info">
+                        <span class="user-name">John Doe</span>
+                        <span class="post-time">2 hours ago</span>
+                    </div>
+                </div>
+                <p class="post-content">Need immediate help with evacuation in downtown area.</p>
+                <div class="post-actions">
+                    <button onclick="respondToPost(1)">Respond</button>
+                    <button onclick="sharePost(1)">Share</button>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function showPreparednessTab(tab) {
+    const tabs = document.querySelectorAll('.preparedness-tabs .tab-btn');
+    tabs.forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const content = document.getElementById('preparedness-content');
+    switch(tab) {
+        case 'tips':
+            content.innerHTML = generateSurvivalTips();
+            break;
+        case 'checklist':
+            content.innerHTML = generateEmergencyChecklist();
+            break;
+        case 'videos':
+            content.innerHTML = generateHowToVideos();
+            break;
+    }
+}
+
+function generateSurvivalTips() {
+    return `
+        <div class="survival-tips">
+            <div class="tip-card">
+                <h3>Earthquake Safety</h3>
+                <ul>
+                    <li>Drop, cover, and hold on</li>
+                    <li>Stay away from windows</li>
+                    <li>Move to open areas if outdoors</li>
+                </ul>
+            </div>
+            <div class="tip-card">
+                <h3>Flood Safety</h3>
+                <ul>
+                    <li>Move to higher ground</li>
+                    <li>Avoid walking in water</li>
+                    <li>Stay tuned to weather updates</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function generateEmergencyChecklist() {
+    return `
+        <div class="emergency-checklist">
+            <div class="checklist-item">
+                <input type="checkbox" id="water">
+                <label for="water">Water (1 gallon per person per day)</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="food">
+                <label for="food">Non-perishable food</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="first-aid">
+                <label for="first-aid">First aid kit</label>
+            </div>
+            <div class="checklist-item">
+                <input type="checkbox" id="flashlight">
+                <label for="flashlight">Flashlight and batteries</label>
+            </div>
+        </div>
+    `;
+}
+
+function generateHowToVideos() {
+    return `
+        <div class="how-to-videos">
+            <div class="video-card">
+                <h3>First Aid Basics</h3>
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+            </div>
+            <div class="video-card">
+                <h3>CPR Guide</h3>
+                <div class="video-placeholder">
+                    <i class="fas fa-play-circle"></i>
+                </div>
             </div>
         </div>
     `;
@@ -1189,130 +1605,123 @@ function createDetailedCompensationTable(details) {
     `;
 }
 
-function createRiskAssessmentHTML() {
-    return `
-        <div class="risk-assessment-container">
-            <h1>Location Risk Assessment</h1>
-            <div class="location-status">
-                <div class="status-card ${getCurrentRiskLevel().className}">
-                    <h2>Current Risk Level</h2>
-                    <div class="risk-meter">
-                        <div class="risk-level" style="width: ${getCurrentRiskLevel().percentage}%">
-                            <span>${getCurrentRiskLevel().percentage}%</span>
-                        </div>
-                    </div>
-                    <p class="risk-status">${getCurrentRiskLevel().status}</p>
+// Location handling functions
+function showLocationModal() {
+    const modal = document.createElement('div');
+    modal.className = 'location-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-btn" onclick="this.parentElement.parentElement.remove()">&times;</span>
+            <h2>Set Your Location</h2>
+            <div class="location-options">
+                <button onclick="getCurrentLocation()" class="location-btn">
+                    <i class="fas fa-location-arrow"></i> Use Current Location
+                </button>
+                <div class="manual-location">
+                    <h3>Or Enter Manually</h3>
+                    <input type="text" id="locationSearch" placeholder="Search location...">
+                    <div id="locationSuggestions" class="location-suggestions"></div>
+                    <div id="selectedLocation" class="selected-location"></div>
                 </div>
             </div>
-
-            <div class="potential-disasters">
-                <h2>Potential Risks</h2>
-                <div class="disaster-cards">
-                    ${generateDisasterRiskCards()}
-                </div>
-            </div>
-
-            ${createSafetyGuidelinesSection()}
+            <button onclick="saveLocation()" class="submit-btn">Save Location</button>
         </div>
     `;
+    document.body.appendChild(modal);
 }
 
-function getCurrentRiskLevel() {
-    // In a real app, this would be calculated based on real-time data
-    return {
-        percentage: 65,
-        status: 'Moderate Risk - Stay Alert',
-        className: 'moderate-risk'
-    };
+function getCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                userLocation = { lat: latitude, lng: longitude };
+                reverseGeocode(latitude, longitude);
+            },
+            (error) => {
+                alert('Error getting location: ' + error.message);
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser');
+    }
 }
 
-function generateDisasterRiskCards() {
-    const disasters = [
-        {
-            type: 'Flood',
-            probability: 75,
-            timeframe: '48 hours',
-            severity: 'High',
-            details: 'Heavy rainfall expected'
-        },
-        {
-            type: 'Earthquake',
-            probability: 30,
-            timeframe: '7 days',
-            severity: 'Moderate',
-            details: 'Seismic activity detected'
-        },
-        // Add more disaster types as needed
-    ];
-
-    return disasters.map(disaster => `
-        <div class="disaster-risk-card" onclick="showDisasterDetails('${disaster.type}')">
-            <div class="risk-header">
-                <h3>${disaster.type}</h3>
-                <span class="probability">${disaster.probability}%</span>
-            </div>
-            <div class="risk-details">
-                <p>Expected within: ${disaster.timeframe}</p>
-                <p>Severity: ${disaster.severity}</p>
-                <p>${disaster.details}</p>
-                <div class="probability-bar">
-                    <div class="probability-level" style="width: ${disaster.probability}%"></div>
-                </div>
-            </div>
-        </div>
-    `).join('');
+async function reverseGeocode(lat, lng) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await response.json();
+        const locationName = data.display_name;
+        document.getElementById('selectedLocation').innerHTML = `
+            <p>Selected Location: ${locationName}</p>
+            <p>Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
+        `;
+    } catch (error) {
+        console.error('Error reverse geocoding:', error);
+    }
 }
 
-function createSafetyGuidelinesSection() {
-    return `
-        <div class="safety-guidelines">
-            <h2>Safety Guidelines</h2>
-            <div class="guidelines-tabs">
-                <button class="tab-btn active" onclick="showGuidelines('do')">Do's</button>
-                <button class="tab-btn" onclick="showGuidelines('dont')">Don'ts</button>
+async function searchLocation(query) {
+    if (query.length < 3) return;
+    
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        const suggestions = document.getElementById('locationSuggestions');
+        suggestions.innerHTML = data.slice(0, 5).map(loc => `
+            <div class="location-suggestion" onclick="selectLocation(${loc.lat}, ${loc.lon}, '${loc.display_name}')">
+                ${loc.display_name}
             </div>
-            <div class="guidelines-content">
-                <div id="doGuidelines" class="guidelines-list active">
-                    ${generateDosList()}
-                </div>
-                <div id="dontGuidelines" class="guidelines-list">
-                    ${generateDontsList()}
-                </div>
-            </div>
-        </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error searching location:', error);
+    }
+}
+
+function selectLocation(lat, lng, name) {
+    userLocation = { lat, lng };
+    document.getElementById('selectedLocation').innerHTML = `
+        <p>Selected Location: ${name}</p>
+        <p>Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}</p>
     `;
+    document.getElementById('locationSuggestions').innerHTML = '';
 }
 
-function generateDosList() {
-    const dos = [
-        'Stay informed through official channels',
-        'Keep emergency contacts handy',
-        'Prepare an emergency kit',
-        'Follow evacuation orders promptly',
-        'Help others if you are safe'
-    ];
-
-    return dos.map((item, index) => `
-        <div class="guideline-item do-item" style="animation-delay: ${index * 0.2}s">
-            <span class="checkmark">✓</span>
-            <p>${item}</p>
-        </div>
-    `).join('');
+function saveLocation() {
+    if (userLocation) {
+        localStorage.setItem('userLocation', JSON.stringify(userLocation));
+        updateContentBasedOnLocation();
+        document.querySelector('.location-modal').remove();
+    } else {
+        alert('Please select a location first');
+    }
 }
 
-function generateDontsList() {
-    const donts = [
-        'Don\'t panic or spread rumors',
-        'Don\'t ignore warning signals',
-        'Don\'t use elevators during emergencies',
-        'Don\'t return until authorities declare safe',
-        'Don\'t forget to turn off utilities'
-    ];
+function updateContentBasedOnLocation() {
+    // Update map view
+    if (map && userLocation) {
+        map.setView([userLocation.lat, userLocation.lng], 13);
+    }
 
-    return donts.map((item, index) => `
-        <div class="guideline-item dont-item" style="animation-delay: ${index * 0.2}s">
-            <span class="cross">✕</span>
-            <p>${item}</p>
-        </div>
-    `).join('');
-} 
+    // Update risk assessment
+    if (currentPage === 'risk-assessment') {
+        loadPage('risk-assessment');
+    }
+
+    // Update disaster alerts
+    if (currentPage === 'dashboard') {
+        loadDisasterAlerts();
+    }
+
+    // Update government services
+    if (currentPage === 'govt-services') {
+        loadPage('govt-services');
+    }
+}
+
+// Add event listener for location search
+document.addEventListener('input', (e) => {
+    if (e.target.id === 'locationSearch') {
+        searchLocation(e.target.value);
+    }
+}); 

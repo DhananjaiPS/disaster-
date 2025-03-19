@@ -169,22 +169,298 @@ body {
 /* Dashboard Container */
 .dashboard-container {
     padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.dashboard-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-section h2 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+/* Map Section */
+.map-section {
+    grid-column: 1 / -1;
+}
+
+.map-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.map-controls button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+.map-controls button:hover {
+    background: #e0e0e0;
+}
+
+/* Alerts Section */
+.alerts-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.alerts-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Emergency Contacts Section */
+.quick-contacts {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.contact-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.contact-group {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.contact-group h3 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.contact-group button {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.25rem 0;
+    border: none;
+    border-radius: 4px;
+    background: #e3f2fd;
+    color: #1976d2;
+    cursor: pointer;
+}
+
+/* Community Support Section */
+.community-actions {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.community-feed {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.community-post {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.post-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.post-time {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+/* Risk Assessment Section */
+.risk-indicators {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.weather-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.weather-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.temperature {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Preparedness Section */
+.preparedness-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.preparedness-tab-content {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 4px;
+}
+
+.survival-tips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.tip-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.emergency-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.how-to-videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.video-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.video-placeholder {
+    aspect-ratio: 16/9;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+}
+
+.video-placeholder i {
+    font-size: 3rem;
+    color: #666;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .emergency-container {
-        margin: 1rem;
-        padding: 1rem;
+    .dashboard-grid {
+        grid-template-columns: 1fr;
     }
 
-    .button-group {
+    .dashboard-header {
         flex-direction: column;
         gap: 1rem;
     }
 
-    .button-group button {
+    .dashboard-controls {
         width: 100%;
+        justify-content: space-between;
+    }
+
+    .community-actions {
+        flex-direction: column;
+    }
+
+    .preparedness-tabs {
+        flex-wrap: wrap;
     }
 }
 
@@ -977,4 +1253,116 @@ body {
 .submit-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+/* Location Modal Styles */
+.location-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.location-modal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.location-options {
+    margin: 1.5rem 0;
+}
+
+.location-options button {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.location-options button:hover {
+    background: #1976d2;
+}
+
+.manual-location {
+    margin-top: 2rem;
+}
+
+.manual-location h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+#locationSearch {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.location-suggestions {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.location-suggestion {
+    padding: 0.8rem;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.location-suggestion:hover {
+    background: #f5f5f5;
+}
+
+.selected-location {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.selected-location p {
+    margin: 0.5rem 0;
+    color: #333;
+}
+
+/* Update existing location button in navbar */
+.nav-items .location-btn {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-items .location-btn:hover {
+    background: rgba(255,255,255,0.2);
 } 

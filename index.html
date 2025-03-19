@@ -6,19 +6,31 @@
     <title>Disaster Management</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-brand">Disaster Management</div>
         <div class="nav-items">
-            <button class="translate-btn">Language</button>
-            <button class="live-status-btn" onclick="loadPage('risk-assessment')">
-                Live Status
+            <button class="location-btn">
+                <i class="fas fa-map-marker-alt"></i> Set Location
+            </button>
+            <button class="live-status-btn">
+                <i class="fas fa-chart-line"></i> Live Dashboard
                 <span class="pulse"></span>
             </button>
-            <button class="notifications-btn">Notifications</button>
-            <button class="sos-btn">SOS Emergency</button>
-            <button class="profile-btn">Profile</button>
+            <button class="sos-btn">
+                <i class="fas fa-phone-alt"></i> SOS Emergency
+            </button>
+            <button class="notifications-btn">
+                <i class="fas fa-bell"></i> Notifications
+            </button>
+            <button class="profile-btn">
+                <i class="fas fa-user"></i> Profile
+            </button>
+            <button class="translate-btn">
+                <i class="fas fa-language"></i> Language
+            </button>
         </div>
     </nav>
 
@@ -28,5 +40,6 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="app.js"></script>
+    <script src="dashboard.js"></script>
 </body>
 </html> 
