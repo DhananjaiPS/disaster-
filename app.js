@@ -124,7 +124,7 @@ function setupNavigation() {
     document.querySelector('.nav-brand').addEventListener('click', () => loadPage('dashboard'));
     document.querySelector('.sos-btn').addEventListener('click', () => loadPage('emergency-sos'));
     document.querySelector('.profile-btn').addEventListener('click', () => loadPage('profile'));
-    document.querySelector('.location-btn').addEventListener('click', () => showLocationModal());
+    // document.querySelector('.location-btn').addEventListener('click', () => showLocationModal());
 }
 
 // Page routing
@@ -133,14 +133,14 @@ function loadPage(pageName) {
     const mainContent = document.getElementById('main-content');
     
     // Check if location is required for this page
-    if (['dashboard', 'risk-assessment', 'govt-services'].includes(pageName)) {
-        const savedLocation = localStorage.getItem('userLocation');
-        if (!savedLocation) {
-            showLocationModal();
-            return;
-        }
-        userLocation = JSON.parse(savedLocation);
-    }
+    // if (['dashboard', 'risk-assessment', 'govt-services'].includes(pageName)) {
+    //     const savedLocation = localStorage.getItem('userLocation');
+    //     if (!savedLocation) {
+    //         // showLocationModal();
+    //         return;
+    //     }
+    //     userLocation = JSON.parse(savedLocation);
+    // }
     
     switch(pageName) {
         case 'dashboard':
@@ -215,7 +215,7 @@ function createDashboardHTML() {
     return `
         <div class="dashboard-container">
             <div class="dashboard-header">
-                <h1>Live Disaster Dashboard</h1>
+                <h1 class="headingDashBoard">Live Disaster Dashboard</h1>
                 <div class="dashboard-controls">
                     <button onclick="refreshDashboard()" class="refresh-btn">
                         <i class="fas fa-sync"></i> Refresh
@@ -1627,6 +1627,7 @@ function showLocationModal() {
             <button onclick="saveLocation()" class="submit-btn">Save Location</button>
         </div>
     `;
+    model.style.display="none";
     document.body.appendChild(modal);
 }
 
