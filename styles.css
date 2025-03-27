@@ -9,18 +9,31 @@ body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
 }
+.navbtn i{
+    font-size: 1.5rem;
+}
 
 /* Navbar styles */
 .navbar {
-    background-color: #f44336;
+    /* background-color: #f44336; */
+    background-color: #000;
     color: white;
-    padding: 1rem;
+    padding: .51rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 1000;
+}
+.navbtn{
+    width: 200px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
 }
 
 .nav-brand {
@@ -43,7 +56,15 @@ body {
     background: transparent;
     color: white;
 }
-
+.profile-btn{
+    width: 120px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #000;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+}
 .nav-items button:not(.sos-btn) {
     background: rgba(255,255,255,0.1);
 }
@@ -142,6 +163,9 @@ body {
 .submit-btn {
     background-color: #d32f2f;
     color: white;
+    height: 7vh;
+    font-size: 1.35rem;
+    border: none;
 }
 
 /* Quick Action Buttons */
@@ -470,7 +494,13 @@ body {
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 64px);
-    background-color: #f5f5f5;
+    /* background-color: #f5f5f5; */
+    /* background: url("black\ and\ white\ color\ GIF\ by\ Erica\ Anderson.gif"); */
+    /* background: url("https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHNzNm5qMnJ0d250ajg4Ym16OGl5bGxhdTM1Nnlha3Bzcm1tejV6NyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PAZumvIof5Y2ZOMaLs/giphy.gif"); */
+
+    background-size: cover;
+    background-position: center;
+    /* background-repeat: no-repeat; */
 }
 
 .auth-box {
@@ -1352,15 +1382,17 @@ body {
 
 /* Update existing location button in navbar */
 .nav-items .location-btn {
-    background: rgba(255,255,255,0.1);
-    color: white;
+    background: white;
+    color: rgb(255, 255, 255);
     padding: 0.5rem 1rem;
+    
     border: none;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    justify-content: end;
 }
 
 .nav-items .location-btn:hover {
@@ -1610,6 +1642,7 @@ body {
 
 .chatbot-messages::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
+    
     border-radius: 3px;
 }
 
@@ -1625,6 +1658,7 @@ body {
 /* Chatbot Toggle Button */
 .chatbot-toggle-btn {
     background: rgba(0, 0, 0, 0.8);
+    
     color: white;
     border: none;
     padding: 8px 15px;
@@ -1653,3 +1687,31 @@ body {
     border-left: 4px solid #d32f2f;
     font-weight: bold;
 } 
+.chatbot-toggle-btn{
+    position: relative;
+    display: flex
+;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    top: -949px; 
+    /* 89 */
+    left: -32px;
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+}
+.chatbot-toggle-btn i{
+    font-size: 1.5rem;}
+
+.ai{
+    display: flex;
+    justify-content:end;
+    align-items: center;
+    width: 100%;
+
+}

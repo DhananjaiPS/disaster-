@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,32 +8,31 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/019ba0295c.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
     <nav class="navbar">
-        <div class="nav-brand">Disaster Management</div>
+        <div class="nav-brand">Maha-Dev</div>
         <div class="nav-items">
-            <button class="location-btn">
+            <button class="location-btn navbtn">
                 <i class="fas fa-map-marker-alt"></i> Set Location
             </button>
-            <button class="live-status-btn">
+            <button class="live-status-btn navbtn">
                 <i class="fas fa-chart-line"></i> Live Dashboard
                 <span class="pulse"></span>
             </button>
-            <button class="sos-btn">
+            <button class="sos-btn navbtn">
                 <i class="fas fa-phone-alt"></i> SOS Emergency
             </button>
-            <button class="notifications-btn">
-                <i class="fas fa-bell"></i> Notifications
+            <button class="notifications-btn navbtn">
+                <i class="fas fa-bell"></i> 
             </button>
-            <button class="profile-btn">
-                <i class="fas fa-user"></i> Profile
+            <button class="profile-btn navbtn">
+                <i class="fas fa-user"></i> 
             </button>
-            <button class="translate-btn">
-                <i class="fas fa-language"></i> Language
-            </button>
-            <button class="chatbot-toggle-btn" onclick="toggleChatbot()">
-                <i class="fas fa-robot"></i> AI Assistant
+            <button class="translate-btn navbtn">
+                <i class="fas fa-language"></i> 
             </button>
         </div>
     </nav>
@@ -41,9 +41,20 @@
         <!-- Content will be dynamically loaded here -->
     </main>
 
+
+
+    <div class="ai">
+        <button class="chatbot-toggle-btn" onclick="toggleChatbot()">
+            <i class="fas fa-robot"></i> 
+        </button>
+    </div>
+
+
+
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script src="app.js"></script>
     <script src="dashboard.js"></script>
     <script src="chatbot.js"></script>
 </body>
-</html> 
+
+</html>

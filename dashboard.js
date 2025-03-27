@@ -129,23 +129,23 @@ function sendNotification(title, options) {
 // Data loading
 async function loadInitialData() {
     try {
-        // Load disaster alerts
-        const alertsResponse = await fetch('https://your-api.com/alerts');
+        // Load disaster alerts (Using USGS Earthquake Alerts API as an example)
+        const alertsResponse = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_week.geojson');
         const alerts = await alertsResponse.json();
         updateAlerts(alerts);
 
-        // Load weather data
-        const weatherResponse = await fetch('https://your-api.com/weather');
+        // Load weather data (Using Open-Meteo API as an example)
+        const weatherResponse = await fetch('https://api.open-meteo.com/v1/forecast?latitude=40.7128&longitude=-74.0060&hourly=temperature_2m');
         const weather = await weatherResponse.json();
         updateWeather(weather);
 
-        // Load community posts
-        const postsResponse = await fetch('https://your-api.com/posts');
+        // Load community posts (Using JSONPlaceholder API as a mock community posts data)
+        const postsResponse = await fetch('https://jsonplaceholder.typicode.com/posts');
         const posts = await postsResponse.json();
         updateCommunityFeed(posts);
 
-        // Load risk assessment
-        const riskResponse = await fetch('https://your-api.com/risk');
+        // Load risk assessment (Using an open disease database as an example for health-related risks)
+        const riskResponse = await fetch('https://disease.sh/v3/covid-19/countries/USA');
         const risk = await riskResponse.json();
         updateRiskAssessment(risk);
     } catch (error) {
