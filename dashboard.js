@@ -333,3 +333,50 @@ function formatTimeAgo(timestamp) {
 
 // Initialize dashboard when the page loads
 document.addEventListener('DOMContentLoaded', initializeDashboard); 
+
+
+
+
+try {
+    // In a real app, this would fetch from a weather API
+    const weatherContainer = document.getElementById('weather-container');
+    async function getWeather(event) {
+        event.preventDefault();
+
+        const apiKey = "b65707795cc0c0c89539279426e5f01d";
+        // const city = document.getElementById("cityName").value;
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${Bareilly}&appid=${apiKey}&units=metric`;
+
+        try {
+            const response = await fetch(weatherUrl);
+            const data = await response.json();
+
+            if (data.cod === "404") {
+                alert("City not found! Please enter a valid city.");
+                return;
+            }
+            if (weatherContainer) {
+                weatherContainer.innerHTML = `
+                    <div class="weather-card">
+                        <div class="weather-info">
+                            <span class="temperature">${data.main.temp}°C</span>
+                            <span class="condition">${data.weather[0].description}</span>
+                        </div>
+                        <div class="weather-details">
+                            <p>Humidity:${data.main.humidity}%</p>
+                            <p>Wind: ${data.wind.speed} km/h</p>
+                            <p>Rain Probability: 30%</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            
+        }
+         catch (error) {
+            console.error("Error fetching data:", error);
+            alert("Unable to fetch weather data. Please try again later.");
+        }
+    }
+}
+}

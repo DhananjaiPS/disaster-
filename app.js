@@ -104,17 +104,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const defaultUser = {
             name: 'DJ',
             email: 'dj@gmail.com',
-            phone: '',
+            phone: '6009950848',
             password: '123',
-            address: '',
-            emergencyContact: '',
-            bloodGroup: '',
-            safetyStatus: 'unknown'
+            address: 'C 63 KashiramNagar Moradabad,Uttar Predesh',
+            emergencyContact: '8944944254',
+            bloodGroup: 'O+',
+            safetyStatus: 'Loading...'
         };
         savedUsers.push(defaultUser);
         localStorage.setItem('users', JSON.stringify(savedUsers));
     }
-    
+
     setupNavigation();
     checkLoginStatus();
 });
@@ -124,14 +124,14 @@ function setupNavigation() {
     document.querySelector('.nav-brand').addEventListener('click', () => loadPage('dashboard'));
     document.querySelector('.sos-btn').addEventListener('click', () => loadPage('emergency-sos'));
     document.querySelector('.profile-btn').addEventListener('click', () => loadPage('profile'));
-    // document.querySelector('.location-btn').addEventListener('click', () => showLocationModal());
+    document.querySelector('.location-btn').addEventListener('click', () => showLocationModal());
 }
 
 // Page routing
 function loadPage(pageName) {
     currentPage = pageName;
     const mainContent = document.getElementById('main-content');
-    
+
     // Check if location is required for this page
     // if (['dashboard', 'risk-assessment', 'govt-services'].includes(pageName)) {
     //     const savedLocation = localStorage.getItem('userLocation');
@@ -141,8 +141,8 @@ function loadPage(pageName) {
     //     }
     //     userLocation = JSON.parse(savedLocation);
     // }
-    
-    switch(pageName) {
+
+    switch (pageName) {
         case 'dashboard':
             mainContent.innerHTML = createDashboardHTML();
             initializeMap();
@@ -187,7 +187,7 @@ function initializeMap() {
 // Update map markers
 function updateMapMarkers() {
     if (!map) return;
-    
+
     // Clear existing markers
     map.eachLayer((layer) => {
         if (layer instanceof L.Marker) {
@@ -217,11 +217,16 @@ function createDashboardHTML() {
             <div class="dashboard-header">
                 <h1 class="headingDashBoard">Live Disaster Dashboard</h1>
                 <div class="dashboard-controls">
-                    <button onclick="refreshDashboard()" class="refresh-btn">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button onclick="toggleNotifications()" class="notifications-toggle">
-                        <i class="fas fa-bell"></i> Enable Notifications
+                <div class="sub-board">
+                <button onclick="refreshDashboard()" class="refresh-btn">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <button onclick="toggleNotifications()" class="notifications-toggle">
+                    <i class="fas fa-bell"></i> Enable Notifications
+                </button>
+                </div>
+                <button onclick="refreshDashboard()" class="media-btn refresh-btn">
+                       📸 Media Analysis
                     </button>
                 </div>
             </div>
@@ -244,10 +249,12 @@ function createDashboardHTML() {
                 <div class="dashboard-section alerts-section">
                     <h2>Real-time Alerts</h2>
                     <div class="alerts-filter">
+
                         <button class="filter-btn active" onclick="filterAlerts('all')">All</button>
                         <button class="filter-btn" onclick="filterAlerts('high')">High Priority</button>
                         <button class="filter-btn" onclick="filterAlerts('medium')">Medium</button>
                         <button class="filter-btn" onclick="filterAlerts('low')">Low</button>
+                        <button class=" filter-btn modeSwitch-btn" onclick="filterAlerts('local')">Local</button>
                     </div>
                     <div id="alerts-container" class="alerts-container"></div>
                 </div>
@@ -280,7 +287,7 @@ function createDashboardHTML() {
                     <h2>Community Support</h2>
                     <div class="community-actions">
                         <button onclick="showReportModal()" class="report-btn">
-                            <i class="fas fa-camera"></i> Report Incident
+                           📸 Report Incident
                         </button>
                         <button onclick="showMissingPersonModal()" class="missing-btn">
                             <i class="fas fa-user-missing"></i> Report Missing Person
@@ -300,7 +307,8 @@ function createDashboardHTML() {
                             <h3>Current Risk Level</h3>
                             <div class="risk-meter">
                                 <div class="risk-level" style="width: ${getCurrentRiskLevel().percentage}%">
-                                    <span>${getCurrentRiskLevel().percentage}%</span>
+                                    <span>${40}%</span>
+                               <!--  <span>${getCurrentRiskLevel().percentage}%</span>-->
                                 </div>
                             </div>
                             <p class="risk-status">${getCurrentRiskLevel().status}</p>
@@ -440,7 +448,7 @@ function filterAlerts(priority) {
     const buttons = document.querySelectorAll('.alerts-filter .filter-btn');
     buttons.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     const alerts = document.querySelectorAll('.alert-card');
     alerts.forEach(alert => {
         if (priority === 'all' || alert.dataset.priority === priority) {
@@ -466,7 +474,7 @@ function callEmergency(service) {
         ndrf: '1800-180-1234',
         redcross: '1800-180-1234'
     };
-    
+
     if (numbers[service]) {
         window.location.href = `tel:${numbers[service]}`;
     }
@@ -510,28 +518,47 @@ async function submitVolunteer(event) {
 }
 
 async function updateWeatherForecast() {
-    try {
+   
         // In a real app, this would fetch from a weather API
         const weatherContainer = document.getElementById('weather-container');
+        
         if (weatherContainer) {
+            const weatherContainer = document.getElementById('weather-container');
+            async function getWeather(event) {
+            event.preventDefault();
+
+            const apiKey = "b65707795cc0c0c89539279426e5f01d";
+        
+            const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${Bareilly}&appid=${apiKey}&units=metric`;
+
+
+
+            const response = await fetch(weatherUrl);
+            const data = await response.json();
+
+            if (data.cod === "404") {
+                alert("City not found! Please enter a valid city.");
+                return;
+            }
+
             weatherContainer.innerHTML = `
                 <div class="weather-card">
-                    <div class="weather-info">
-                        <span class="temperature">28°C</span>
-                        <span class="condition">Partly Cloudy</span>
+                        <div class="weather-info">
+                            <span class="temperature">${data.main.temp}°C</span>
+                            <span class="condition">${data.weather[0].description}</span>
+                        </div>
+                        <div class="weather-details">
+                            <p>Humidity:${data.main.humidity}%</p>
+                            <p>Wind: ${data.wind.speed} km/h</p>
+                            <p>Rain Probability: 30%</p>
+                        </div>
                     </div>
-                    <div class="weather-details">
-                        <p>Humidity: 65%</p>
-                        <p>Wind: 12 km/h</p>
-                        <p>Rain Probability: 30%</p>
-                    </div>
-                </div>
             `;
         }
-    } catch (error) {
-        console.error('Error updating weather:', error);
-    }
+    } 
+   
 }
+
 
 function updateCommunityFeed() {
     const feed = document.getElementById('community-feed');
@@ -562,7 +589,7 @@ function showPreparednessTab(tab) {
     event.target.classList.add('active');
 
     const content = document.getElementById('preparedness-content');
-    switch(tab) {
+    switch (tab) {
         case 'tips':
             content.innerHTML = generateSurvivalTips();
             break;
@@ -658,7 +685,7 @@ function loadDisasterAlerts() {
         }
         // Add more mock alerts as needed
     ];
-    
+
     renderAlerts();
     updateMapMarkers();
 }
@@ -907,7 +934,7 @@ function setupRegistrationForm() {
     const form = document.getElementById('registerForm');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const newUser = {
             name: document.getElementById('regName').value,
             email: document.getElementById('regEmail').value,
@@ -1010,20 +1037,20 @@ function toggleEditMode() {
     const inputs = form.querySelectorAll('input, select');
     const saveBtn = form.querySelector('.save-btn');
     const editBtn = document.getElementById('editButton');
-    
+
     const isDisabled = inputs[0].disabled;
-    
+
     inputs.forEach(input => {
         input.disabled = !isDisabled;
     });
-    
+
     saveBtn.style.display = isDisabled ? 'block' : 'none';
     editBtn.textContent = isDisabled ? 'Cancel' : 'Edit Profile';
 }
 
 function updateProfile(event) {
     event.preventDefault();
-    
+
     const updatedUser = {
         ...currentUser,
         name: document.getElementById('profileName').value,
@@ -1051,14 +1078,14 @@ function updateProfile(event) {
 function updateSafetyStatus(status) {
     currentUser.safetyStatus = status;
     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    
+
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const userIndex = users.findIndex(u => u.email === currentUser.email);
     if (userIndex !== -1) {
         users[userIndex].safetyStatus = status;
         localStorage.setItem('users', JSON.stringify(users));
     }
-    
+
     alert('Safety status updated successfully!');
 }
 
@@ -1086,7 +1113,7 @@ async function sendSOS(emergencyData) {
 
         // For demonstration, show what would be sent
         console.log('SOS Message:', message);
-        
+
         // In a real application, you would send this to your backend
         const response = await sendSMSAlert(
             emergencyData.contactInfo.phone,
@@ -1229,15 +1256,15 @@ function generateDontsList() {
 }
 
 // Add to window object for HTML onclick access
-window.showGuidelines = function(type) {
+window.showGuidelines = function (type) {
     document.querySelectorAll('.guidelines-list').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    
+
     document.getElementById(`${type}Guidelines`).classList.add('active');
     event.target.classList.add('active');
 };
 
-window.showDisasterDetails = function(disasterType) {
+window.showDisasterDetails = function (disasterType) {
     // Implement detailed view for each disaster type
     console.log(`Showing details for ${disasterType}`);
 };
@@ -1266,7 +1293,7 @@ function generateSchemeCards() {
 }
 
 // Add close modal functionality
-window.closeSchemeDetails = function() {
+window.closeSchemeDetails = function () {
     const modal = document.getElementById('schemeModal');
     if (modal) {
         modal.style.display = 'none';
@@ -1306,7 +1333,7 @@ function createGovtServicesHTML() {
 }
 
 // Add these helper functions
-window.filterSchemes = function(category) {
+window.filterSchemes = function (category) {
     const cards = document.querySelectorAll('.scheme-card');
     const buttons = document.querySelectorAll('.filter-btn');
 
@@ -1322,7 +1349,7 @@ window.filterSchemes = function(category) {
     });
 };
 
-window.searchSchemes = function() {
+window.searchSchemes = function () {
     const searchText = document.getElementById('schemeSearch').value.toLowerCase();
     const cards = document.querySelectorAll('.scheme-card');
 
@@ -1476,7 +1503,7 @@ async function submitApplication(event, schemeId) {
     event.preventDefault();
     const form = document.getElementById('schemeApplicationForm');
     const submitBtn = form.querySelector('.submit-btn');
-    
+
     try {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
@@ -1525,8 +1552,8 @@ function createCompensationPreview(details) {
 }
 
 function formatCategory(category) {
-    return category.charAt(0).toUpperCase() + 
-           category.slice(1).replace(/([A-Z])/g, ' $1');
+    return category.charAt(0).toUpperCase() +
+        category.slice(1).replace(/([A-Z])/g, ' $1');
 }
 
 function getHighestAmount(info) {
@@ -1627,7 +1654,7 @@ function showLocationModal() {
             <button onclick="saveLocation()" class="submit-btn">Save Location</button>
         </div>
     `;
-    model.style.display="none";
+    model.style.display = "none";
     document.body.appendChild(modal);
 }
 
@@ -1664,7 +1691,7 @@ async function reverseGeocode(lat, lng) {
 
 async function searchLocation(query) {
     if (query.length < 3) return;
-    
+
     try {
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
         const data = await response.json();
